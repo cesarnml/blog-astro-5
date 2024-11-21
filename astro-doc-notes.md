@@ -40,7 +40,7 @@
   - [x] ~~_Content collections_~~ [2024-11-20]
   - [x] ~~_Connect a CMS_~~ [2024-11-20]
   - [x] ~~_Add an RSS feed_~~ [2024-11-20]
-- [ ] Routes and Navigation
+- [x] ~~_Routes and Navigation_~~ [2024-11-21]
   - [ ] Routing
   - [ ] Endpoints
   - [ ] Actions
