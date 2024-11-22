@@ -10,6 +10,10 @@ import sitemap from '@astrojs/sitemap'
 export default defineConfig({
   site: 'https://cesar-mejia-blog.vercel.app',
   integrations: [mdx(), sitemap()],
+  prefetch: {
+    defaultStrategy: 'load',
+    prefetchAll: true,
+  },
   // output: "server",
   // adapter: vercel(),
 })

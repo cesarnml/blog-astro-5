@@ -1,6 +1,6 @@
-# Astro Doc Notes
+# Astro Doc Cheatsheet
 
-- [Astro Doc Notes](#astro-doc-notes)
+- [Astro Doc Cheatsheet](#astro-doc-cheatsheet)
   - [Sections](#sections)
   - [Notes](#notes)
     - [Core Concepts](#core-concepts)
@@ -20,6 +20,14 @@
       - [Content Collections](#content-collections)
       - [Connect a CMS](#connect-a-cms)
       - [Add an RSS Feed](#add-an-rss-feed)
+    - [Routes and Navigation](#routes-and-navigation)
+      - [Routing](#routing)
+      - [Endpoints](#endpoints)
+      - [Actions](#actions)
+      - [Prefetch](#prefetch)
+      - [Middleware](#middleware)
+      - [Internationalization](#internationalization)
+      - [View Transitions](#view-transitions)
 
 ## Sections
 
@@ -41,15 +49,13 @@
   - [x] ~~_Connect a CMS_~~ [2024-11-20]
   - [x] ~~_Add an RSS feed_~~ [2024-11-20]
 - [x] ~~_Routes and Navigation_~~ [2024-11-21]
-  - [ ] Routing
-  - [ ] Endpoints
+  - [x] ~~_Routing_~~ [2024-11-22]
+  - [x] ~~_Endpoints_~~ [2024-11-22]
   - [ ] Actions
-  - [ ] Prefetch
+  - [x] ~~_Prefetch_~~ [2024-11-22]
   - [ ] Middleware
   - [ ] Internationalization
   - [ ] View Transitions
-  - [ ] Server Islands
-  - [ ] On-demand rendering
 - [ ] Assets
   - [ ] CSS & Styling
   - [ ] Images
@@ -70,32 +76,6 @@
   - [ ] Upgrade Astro
   - [ ] Testing
   - [ ] Troubleshooting
-- [ ] Recipes and Resources
-  - [ ] How-to Recipes
-  - [ ] Community Resources
-- [ ] Reference
-  - [ ] Configuration
-  - [ ] Astro CLI
-  - [ ] Directives Reference
-  - [ ] TypeScript Reference
-  - [ ] Error Reference
-- [ ] Astro API Reference
-  - [ ] Astro Runtime API
-  - [ ] astro:actions
-  - [ ] astro:assets
-  - [ ] astro:content
-  - [ ] astro:env
-  - [ ] astro:i18n
-  - [ ] astro:middleware
-  - [ ] astro:transitions
-- [ ] Other Development APIs
-  - [ ] Integrations API
-  - [ ] Adapter API
-  - [ ] Image Service API
-  - [ ] Dev Toolbar App API
-  - [ ] Content Loader API
-  - [ ] Container API (Experimental)
-  - [ ] Programmatic Astro API (Experimental)
 
 ## Notes
 
@@ -520,3 +500,165 @@ rss({
     href={new URL("rss.xml", Astro.site)}
 />
 ```
+
+### Routes and Navigation
+
+#### Routing
+
+- Astro uses file-based routing (targets `src/pages`)
+- Astro supports dynamic routes (i.e. `src/pages/blog/[slug].astro`)
+- `getStaticPaths` is used to determine all dynamic routes at built time in SSG mode. It must return an array of objects with a `params` prop which is an object with keys corresponding to the dynamic route parameter(s). Optional `props` property can also be used to pass additional context to the dynamic route
+- A route can have multiple dynamic route parameters.
+- For more advance use cases see dynamic route rest parameter syntax `[...slug]`
+- Setting the dynamic rest parameter to `undefined` will match the top-level domain
+
+```jsx
+---
+export function getStaticPaths () {
+ return [
+    {params: {lang: 'en', version: 'v1'}},
+    {params: {lang: 'fr', version: 'v2'}},
+  ];
+}
+
+const { lang, version } = Astro.params;
+---
+```
+
+- Permanent redirects can be configured in `astro.config.mjs`. Redirects are `301` by default, but can be configured by using object syntax `{'/old_page': {status: 302, destination: '/new_page'}}`
+- Dynamic redirects can be accomplished with `Astro.redirect` global
+- `Astro.rewrite` is like redirect but doesn't alter the browser url
+- Astro supports pagination out of the box `/astronauts/[page].astro`
+
+```jsx
+---
+// src/pages/astronauts/[page].astro
+
+export async function getStaticPaths({ paginate }) {
+  const astronautPages = [{
+    astronaut: 'Neil Armstrong',
+  }, {
+    astronaut: 'Buzz Aldrin',
+  }, {
+    astronaut: 'Sally Ride',
+  }, {
+    astronaut: 'John Glenn',
+  }];
+  // Generate pages from our array of astronauts, with 2 to a page
+  return paginate(astronautPages, { pageSize: 2 });
+}
+// All paginated data is passed on the "page" prop
+const { page } = Astro.props;
+---
+
+<!--Display the current page number. Astro.params.page can also be used!-->
+<h1>Page {page.currentPage}</h1>
+<ul>
+  <!--List the array of astronaut info-->
+  {page.data.map(({ astronaut }) => <li>{astronaut}</li>)}
+</ul>
+{page.url.first ? <a href={page.url.first}>First</a> : null}
+{page.url.prev ? <a href={page.url.prev}>Previous</a> : null}
+{page.url.next ? <a href={page.url.next}>Next</a> : null}
+{page.url.last ? <a href={page.url.last}>Last</a> : null}
+```
+
+- Nested pagination:
+
+```jsx
+---
+export async function getStaticPaths({ paginate }) {
+  const allTags = ['red', 'blue', 'green'];
+  const allPosts = await Astro.glob('../../posts/*.md');
+  // For every tag, return a paginate() result.
+  // Make sure that you pass `{params: {tag}}` to `paginate()`
+  // so that Astro knows which tag grouping the result is for.
+  return allTags.flatMap((tag) => {
+    const filteredPosts = allPosts.filter((post) => post.frontmatter.tag === tag);
+    return paginate(filteredPosts, {
+      params: { tag },
+      pageSize: 10
+    });
+  });
+}
+const { page } = Astro.props;
+const params = Astro.params;
+```
+
+#### Endpoints
+
+- `Static File Endpoints` are run at build time an return a static data file (i.e. `.json` for `src/pages/builtwith.json.ts)
+- `import type { APIRoute } from 'astro'` can be used to type the endpoint
+- Static file endpoints can use the `request` parameter to gain access to endpoint url
+
+```jsx
+import type { APIRoute } from 'astro';
+
+export const GET: APIRoute = ({ params, request }) => {
+  return new Response(JSON.stringify({
+      path: new URL(request.url).pathname
+    })
+  )
+}
+```
+
+- `Server Endpoints (API Routes)` function very similar to SvelteKit API endpoints
+- `ALL` method will match requests without an explicit method definition for the given endpoint
+
+```js
+export const ALL: APIRoute = ({ request }) => {
+  return new Response(JSON.stringify({
+      message: `This was a ${request.method}!`
+    })
+  )
+}
+```
+
+#### Actions
+
+#### Prefetch
+
+- To opt-in to prefetching:
+
+```js
+export default defineConfig({
+  prefetch: true,
+})
+```
+
+- Astro supports 4 prefetch strategies for various use cases:
+
+- 1. hover (default): Prefetch when you hover over or focus on the link.
+- 2. tap: Prefetch just before you click on the link.
+- 3. viewport: Prefetch as the links enter the viewport.
+- 4. load: Prefetch all links on the page after the page is loaded.
+
+```jsx
+<a href="/about" data-astro-prefetch="tap">
+  About
+</a>
+```
+
+```js
+export default defineConfig({
+  prefetch: {
+    defaultStrategy: 'viewport',
+    prefetchAll: true,
+  },
+})
+```
+
+- Programmatic prefetching can be enabled with (client-side only):
+
+```js
+import { prefetch } from 'astro:prefetch'
+```
+
+- If [prefetching fails](https://docs.astro.build/en/guides/prefetch/#browser-support), research cache headers: `Cache-Control`, `Expires`, `ETag`
+  - [MDN HTTP caching](https://developer.mozilla.org/en-US/docs/Web/HTTP/Caching)
+
+#### Middleware
+
+#### Internationalization
+
+#### View Transitions
