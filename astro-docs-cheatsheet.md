@@ -51,7 +51,7 @@
 - [x] ~~_Routes and Navigation_~~ [2024-11-21]
   - [x] ~~_Routing_~~ [2024-11-22]
   - [x] ~~_Endpoints_~~ [2024-11-22]
-  - [ ] Actions
+  - [x] ~~_Actions_~~ [2024-11-22]
   - [x] ~~_Prefetch_~~ [2024-11-22]
   - [ ] Middleware
   - [ ] Internationalization
@@ -616,6 +616,108 @@ export const ALL: APIRoute = ({ request }) => {
 
 #### Actions
 
+- _Actions allow you define and call backend functions with type-safety_
+  - perform data fetching
+  - JSON parsing
+  - input validation
+- Actions are defined in a server object exported from `src/actions/index.ts`
+- Actions can be called from UI-framework components, <form/> POST request, or <script/> tags
+
+```ts
+// src/actions/index.ts
+import { defineAction, ActionError } from 'astro:actions'
+import { z } from 'astro:schema'
+
+export const server = {
+  likePost: defineAction({
+    input: z.object({ postId: z.string() }),
+    handler: async (input, ctx) => {
+      if (!ctx.cookies.has('user-session')) {
+        throw new ActionError({
+          code: 'UNAUTHORIZED',
+          message: 'User must be logged in.',
+        })
+      }
+      // Otherwise, like the post
+    },
+  }),
+}
+```
+
+- Use `accept: 'form'` to use actions with form elements within `defineAction`
+- HTML form element example
+
+```html
+<script>
+  import { actions } from 'astro:actions'
+  import { navigate } from 'astro:transitions/client'
+
+  const form = document.querySelector('form')
+  form?.addEventListener('submit', async (event) => {
+    event.preventDefault()
+    const formData = new FormData(form)
+    const { error } = await actions.newsletter(formData)
+    if (!error) navigate('/confirmation')
+  })
+</script>
+```
+
+- Handling advance input validation errors on the server with `isInputError` utility function
+
+```js
+import { actions, isInputError } from 'astro:actions'
+
+const form = document.querySelector('form')
+const formData = new FormData(form)
+const { error } = await actions.newsletter(formData)
+if (isInputError(error)) {
+  // Handle input errors.
+  if (error.fields.email) {
+    const message = error.fields.email.join(', ')
+  }
+}
+```
+
+- Pages must be SSR if actions are to be called from form elements
+
+- Syntax to launch an action directly from the HTML form element action attribute that navigates to a new route on success
+
+```jsx
+---
+import { actions } from 'astro:actions';
+---
+
+<form method="POST" action={'/confirmation' + actions.newsletter}>
+  <label>E-mail <input required type="email" name="email" /></label>
+  <button>Sign up</button>
+</form>
+```
+
+- Programmatic redirects in astro components after an action is submitted
+
+```jsx
+---
+import { actions } from 'astro:actions';
+
+const result = Astro.getActionResult(actions.createProduct);
+if (result && !result.error) {
+  return Astro.redirect(`/products/${result.data.id}`);
+}
+---
+
+<form method="POST" action={actions.createProduct}>
+  <!--...-->
+</form>
+```
+
+- To persist field values after submission add `transition:persist` directive to input elements
+
+```jsx
+<input transition:persist required type="email" name="email" />
+```
+
+- Still a bit sketchy on all the places actions are called from and there various use cases, but I know enough to be dangerous.
+
 #### Prefetch
 
 - To opt-in to prefetching:
@@ -658,6 +760,8 @@ import { prefetch } from 'astro:prefetch'
   - [MDN HTTP caching](https://developer.mozilla.org/en-US/docs/Web/HTTP/Caching)
 
 #### Middleware
+
+- Middleware allows for request and responses to be intercepted on page/endpoint request.
 
 #### Internationalization
 
