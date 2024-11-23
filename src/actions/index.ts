@@ -7,7 +7,6 @@ export const server = {
       name: z.string(),
     }),
     handler: async (input) => {
-      throw new Error('bang')
       return `Hello ${input.name}`
     },
   }),
