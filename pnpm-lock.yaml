@@ -10,10 +10,10 @@ importers:
     dependencies:
       '@astrojs/check':
         specifier: ^0.9.4
-        version: 0.9.4(prettier-plugin-astro@0.14.1)(prettier@3.3.3)(typescript@5.6.3)
+        version: 0.9.4(prettier-plugin-astro@0.14.1)(prettier@3.3.3)(typescript@5.7.2)
       '@astrojs/mdx':
         specifier: ^4.0.0-beta.3
-        version: 4.0.0-beta.3(astro@5.0.0-beta.10(rollup@4.24.0)(typescript@5.6.3)(yaml@2.6.0))
+        version: 4.0.0-beta.3(astro@5.0.0-beta.10(rollup@4.24.0)(typescript@5.7.2)(yaml@2.6.0))
       '@astrojs/rss':
         specifier: ^4.0.9
         version: 4.0.9
@@ -22,13 +22,13 @@ importers:
         version: 3.2.1
       '@astrojs/vercel':
         specifier: ^7.8.2
-        version: 7.8.2(astro@5.0.0-beta.10(rollup@4.24.0)(typescript@5.6.3)(yaml@2.6.0))
+        version: 7.8.2(astro@5.0.0-beta.10(rollup@4.24.0)(typescript@5.7.2)(yaml@2.6.0))
       astro:
         specifier: ^5.0.0-beta.10
-        version: 5.0.0-beta.10(rollup@4.24.0)(typescript@5.6.3)(yaml@2.6.0)
+        version: 5.0.0-beta.10(rollup@4.24.0)(typescript@5.7.2)(yaml@2.6.0)
       typescript:
-        specifier: ^5.6.3
-        version: 5.6.3
+        specifier: ^5.7.2
+        version: 5.7.2
     devDependencies:
       prettier:
         specifier: ^3.3.3
@@ -1940,8 +1940,8 @@ packages:
   typescript-auto-import-cache@0.3.3:
     resolution: {integrity: sha512-ojEC7+Ci1ij9eE6hp8Jl9VUNnsEKzztktP5gtYNRMrTmfXVwA1PITYYAkpxCvvupdSYa/Re51B6KMcv1CTZEUA==}
 
-  typescript@5.6.3:
-    resolution: {integrity: sha512-hjcS1mhfuyi4WW8IWtjP7brDrG2cuDZukyrYrSauoXGNgx0S7zceP07adYkJycEr56BOUTNPzbInooiN3fn1qw==}
+  typescript@5.7.2:
+    resolution: {integrity: sha512-i5t66RHxDvVN40HfDd1PsEThGNnlMCMT3jMUuoh9/0TaqWevNontacunWyN02LA9/fIbEWlcHZcgTKb9QoaLfg==}
     engines: {node: '>=14.17'}
     hasBin: true
 
@@ -2250,12 +2250,12 @@ packages:
 
 snapshots:
 
-  '@astrojs/check@0.9.4(prettier-plugin-astro@0.14.1)(prettier@3.3.3)(typescript@5.6.3)':
+  '@astrojs/check@0.9.4(prettier-plugin-astro@0.14.1)(prettier@3.3.3)(typescript@5.7.2)':
     dependencies:
-      '@astrojs/language-server': 2.15.3(prettier-plugin-astro@0.14.1)(prettier@3.3.3)(typescript@5.6.3)
+      '@astrojs/language-server': 2.15.3(prettier-plugin-astro@0.14.1)(prettier@3.3.3)(typescript@5.7.2)
       chokidar: 4.0.1
       kleur: 4.1.5
-      typescript: 5.6.3
+      typescript: 5.7.2
       yargs: 17.7.2
     transitivePeerDependencies:
       - prettier
@@ -2265,12 +2265,12 @@ snapshots:
 
   '@astrojs/internal-helpers@0.4.1': {}
 
-  '@astrojs/language-server@2.15.3(prettier-plugin-astro@0.14.1)(prettier@3.3.3)(typescript@5.6.3)':
+  '@astrojs/language-server@2.15.3(prettier-plugin-astro@0.14.1)(prettier@3.3.3)(typescript@5.7.2)':
     dependencies:
       '@astrojs/compiler': 2.10.3
       '@astrojs/yaml2ts': 0.2.1
       '@jridgewell/sourcemap-codec': 1.5.0
-      '@volar/kit': 2.4.6(typescript@5.6.3)
+      '@volar/kit': 2.4.6(typescript@5.7.2)
       '@volar/language-core': 2.4.6
       '@volar/language-server': 2.4.6
       '@volar/language-service': 2.4.6
@@ -2315,12 +2315,12 @@ snapshots:
     transitivePeerDependencies:
       - supports-color
 
-  '@astrojs/mdx@4.0.0-beta.3(astro@5.0.0-beta.10(rollup@4.24.0)(typescript@5.6.3)(yaml@2.6.0))':
+  '@astrojs/mdx@4.0.0-beta.3(astro@5.0.0-beta.10(rollup@4.24.0)(typescript@5.7.2)(yaml@2.6.0))':
     dependencies:
       '@astrojs/markdown-remark': 6.0.0-beta.2
       '@mdx-js/mdx': 3.1.0(acorn@8.14.0)
       acorn: 8.14.0
-      astro: 5.0.0-beta.10(rollup@4.24.0)(typescript@5.6.3)(yaml@2.6.0)
+      astro: 5.0.0-beta.10(rollup@4.24.0)(typescript@5.7.2)(yaml@2.6.0)
       es-module-lexer: 1.5.4
       estree-util-visit: 2.0.0
       hast-util-to-html: 9.0.3
@@ -2361,13 +2361,13 @@ snapshots:
     transitivePeerDependencies:
       - supports-color
 
-  '@astrojs/vercel@7.8.2(astro@5.0.0-beta.10(rollup@4.24.0)(typescript@5.6.3)(yaml@2.6.0))':
+  '@astrojs/vercel@7.8.2(astro@5.0.0-beta.10(rollup@4.24.0)(typescript@5.7.2)(yaml@2.6.0))':
     dependencies:
       '@astrojs/internal-helpers': 0.4.1
       '@vercel/analytics': 1.4.0
       '@vercel/edge': 1.1.2
       '@vercel/nft': 0.27.6
-      astro: 5.0.0-beta.10(rollup@4.24.0)(typescript@5.6.3)(yaml@2.6.0)
+      astro: 5.0.0-beta.10(rollup@4.24.0)(typescript@5.7.2)(yaml@2.6.0)
       esbuild: 0.21.5
       fast-glob: 3.3.2
       web-vitals: 3.5.2
@@ -2883,12 +2883,12 @@ snapshots:
       - encoding
       - supports-color
 
-  '@volar/kit@2.4.6(typescript@5.6.3)':
+  '@volar/kit@2.4.6(typescript@5.7.2)':
     dependencies:
       '@volar/language-service': 2.4.6
       '@volar/typescript': 2.4.6
       typesafe-path: 0.2.2
-      typescript: 5.6.3
+      typescript: 5.7.2
       vscode-languageserver-textdocument: 1.0.12
       vscode-uri: 3.0.8
 
@@ -2993,7 +2993,7 @@ snapshots:
 
   astring@1.9.0: {}
 
-  astro@5.0.0-beta.10(rollup@4.24.0)(typescript@5.6.3)(yaml@2.6.0):
+  astro@5.0.0-beta.10(rollup@4.24.0)(typescript@5.7.2)(yaml@2.6.0):
     dependencies:
       '@astrojs/compiler': 2.10.3
       '@astrojs/internal-helpers': 0.4.1
@@ -3040,7 +3040,7 @@ snapshots:
       semver: 7.6.3
       shiki: 1.23.0
       tinyexec: 0.3.1
-      tsconfck: 3.1.4(typescript@5.6.3)
+      tsconfck: 3.1.4(typescript@5.7.2)
       ultrahtml: 1.5.3
       unist-util-visit: 5.0.0
       vfile: 6.0.3
@@ -3052,7 +3052,7 @@ snapshots:
       yocto-spinner: 0.1.1
       zod: 3.23.8
       zod-to-json-schema: 3.23.5(zod@3.23.8)
-      zod-to-ts: 1.2.0(typescript@5.6.3)(zod@3.23.8)
+      zod-to-ts: 1.2.0(typescript@5.7.2)(zod@3.23.8)
     optionalDependencies:
       sharp: 0.33.5
     transitivePeerDependencies:
@@ -4605,9 +4605,9 @@ snapshots:
 
   trough@2.2.0: {}
 
-  tsconfck@3.1.4(typescript@5.6.3):
+  tsconfck@3.1.4(typescript@5.7.2):
     optionalDependencies:
-      typescript: 5.6.3
+      typescript: 5.7.2
 
   tslib@2.8.0:
     optional: true
@@ -4620,7 +4620,7 @@ snapshots:
     dependencies:
       semver: 7.6.3
 
-  typescript@5.6.3: {}
+  typescript@5.7.2: {}
 
   ultrahtml@1.5.3: {}
 
@@ -4910,9 +4910,9 @@ snapshots:
     dependencies:
       zod: 3.23.8
 
-  zod-to-ts@1.2.0(typescript@5.6.3)(zod@3.23.8):
+  zod-to-ts@1.2.0(typescript@5.7.2)(zod@3.23.8):
     dependencies:
-      typescript: 5.6.3
+      typescript: 5.7.2
       zod: 3.23.8
 
   zod@3.23.8: {}
