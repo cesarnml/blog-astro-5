@@ -67,7 +67,7 @@
   - [x] ~~_Actions_~~ [2024-11-22]
   - [x] ~~_Prefetch_~~ [2024-11-22]
   - [x] ~~_Middleware_~~ [2024-11-24]
-  - [ ] Internationalization
+  - [x] ~~_Internationalization_~~ [2024-11-24]
   - [ ] View Transitions
 - [x] ~~_Assets_~~ [2024-11-24]
   - [x] ~~_CSS & Styling_~~ [2024-11-24]
@@ -861,6 +861,49 @@ export function onRequest(context, next) {
   - Read [here](https://docs.astro.build/en/guides/middleware/#rewriting) if this happens to you
 
 #### Internationalization
+
+- Astro uses middleware to implement its internationalization logic
+- It executes last in sequence, after custom middleware and page
+
+```ts
+import { defineConfig } from 'astro/config'
+export default defineConfig({
+  i18n: {
+    defaultLocale: 'en', // required
+    locales: ['es', 'en', 'pt-br'], // required
+    routing: {
+      prefixDefaultLocale: true, // false is default but I think this makes more sense
+    },
+    domains: {
+      // works with vercel and node adapter only
+      fr: 'https://fr.example.com',
+      es: 'https://example.es',
+    },
+  },
+})
+```
+
+- NOTE: `src/pages/index.astro` is **ALWAYS** required
+- Fallback routes can be setup for when a page route is missing for a given language. Instead of a 404, a redirect or rewrite to a fallback language is possible
+
+```ts
+import { defineConfig } from 'astro/config'
+export default defineConfig({
+  i18n: {
+    defaultLocale: 'en',
+    locales: ['es', 'en', 'fr'],
+    fallback: {
+      fr: 'es',
+    },
+    routing: {
+      fallbackType: 'rewrite',
+    },
+  },
+})
+```
+
+- Astro supports mapping multiple browser recognized language codes to a single custom language path (e.g. [fr, fr-BR] -> french)
+-
 
 #### View Transitions
 
