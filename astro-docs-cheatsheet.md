@@ -28,6 +28,12 @@
       - [Middleware](#middleware)
       - [Internationalization](#internationalization)
       - [View Transitions](#view-transitions)
+    - [Assets](#assets)
+      - [CSS \& Styling](#css--styling)
+      - [Images](#images)
+      - [Fonts](#fonts)
+      - [Syntax Highlighting](#syntax-highlighting)
+      - [Connect Hosted Media or DAM](#connect-hosted-media-or-dam)
     - [Client-Side Interactivity](#client-side-interactivity)
       - [UI Frameworks](#ui-frameworks)
       - [Scripts \& Event Handling](#scripts--event-handling)
@@ -857,6 +863,35 @@ export function onRequest(context, next) {
 #### Internationalization
 
 #### View Transitions
+
+### Assets
+
+#### CSS & Styling
+
+- Within Astro components, `style` tags are scoped by default
+- Use `<style is:global>` to escape scoping
+- `class:list` utility attribute functions like `clsx` library
+- Use utility attribute `define:vars` to pass variables to `style` tag in Astro components
+- If passing `class` prop, rename in child to `className`, because class is a reserved keyword in JS
+- Standard CSS specificity and order of declaration rules apply
+- Supports TailwindCSS: `pnpm astro add tailwind`
+
+```jsx
+---
+const { class: className, ...rest } = Astro.props;
+---
+<div class={className} {...rest}>
+  <slot/>
+</div>
+```
+
+#### Images
+
+#### Fonts
+
+#### Syntax Highlighting
+
+#### Connect Hosted Media or DAM
 
 ### Client-Side Interactivity
 
