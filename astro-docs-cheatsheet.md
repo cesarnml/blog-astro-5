@@ -69,8 +69,8 @@
   - [x] ~~_Middleware_~~ [2024-11-24]
   - [ ] Internationalization
   - [ ] View Transitions
-- [ ] Assets
-  - [ ] CSS & Styling
+- [x] ~~_Assets_~~ [2024-11-24]
+  - [x] ~~_CSS & Styling_~~ [2024-11-24]
   - [ ] Images
   - [ ] Fonts
   - [ ] Syntax Highlighting
