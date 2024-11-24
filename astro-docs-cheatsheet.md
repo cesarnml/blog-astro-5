@@ -678,9 +678,9 @@ if (isInputError(error)) {
 }
 ```
 
-- Pages must be SSR if actions are to be called from form elements
+- Pages **MUST be SSR** if actions are to be called from form elements
 
-- Syntax to launch an action directly from the HTML form element action attribute that navigates to a new route on success
+- Action attribute that navigates to a new `/confirmation` on form submission success
 
 ```jsx
 ---
@@ -693,7 +693,7 @@ import { actions } from 'astro:actions';
 </form>
 ```
 
-- Programmatic redirects in astro components after an action is submitted
+- Programmatic redirects in astro components after an action is submitted using `Astro.getActionResult` and `Astro.redirect`
 
 ```jsx
 ---
@@ -715,8 +715,6 @@ if (result && !result.error) {
 ```jsx
 <input transition:persist required type="email" name="email" />
 ```
-
-- Still a bit sketchy on all the places actions are called from and there various use cases, but I know enough to be dangerous.
 
 #### Prefetch
 
