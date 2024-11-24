@@ -907,6 +907,26 @@ export default defineConfig({
 
 #### View Transitions
 
+- View transitions allow for animated and seamless transitions between pages without the browser's default full-page reload
+- Enables an SPA-like mode when the `ViewTransitions` component is added to a common `head` or `layout` component
+- To enable site-wide View Transitions
+
+```jsx
+// src/components/CommonHead.astro
+---
+import { ViewTransitions } from 'astro:transitions';
+---
+<link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+<meta name="generator" content={Astro.generator} />
+
+<!-- Primary Meta Tags -->
+<title>{title}</title>
+<meta name="title" content={title} />
+<meta name="description" content={description} />
+
+<ViewTransitions />
+```
+
 ### Assets
 
 #### CSS & Styling
