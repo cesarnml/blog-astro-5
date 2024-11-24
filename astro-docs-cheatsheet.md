@@ -31,6 +31,10 @@
     - [Client-Side Interactivity](#client-side-interactivity)
       - [UI Frameworks](#ui-frameworks)
       - [Scripts \& Event Handling](#scripts--event-handling)
+    - [Maintain Your Project](#maintain-your-project)
+      - [Upgrade Astro](#upgrade-astro)
+      - [Testing](#testing)
+      - [Troubleshooting](#troubleshooting)
 
 ## Sections
 
@@ -75,10 +79,10 @@
 - [x] ~~_Client-Side Interactivity_~~ [2024-11-24]
   - [x] ~~_UI Frameworks_~~ [2024-11-24]
   - [x] ~~_Scripts & Event Handling_~~ [2024-11-24]
-- [ ] Maintain Your Project
-  - [ ] Upgrade Astro
-  - [ ] Testing
-  - [ ] Troubleshooting
+- [x] ~~_Maintain Your Project_~~ [2024-11-24]
+  - [x] ~~_Upgrade Astro_~~ [2024-11-24]
+  - [x] ~~_Testing_~~ [2024-11-24]
+  - [x] ~~_Troubleshooting_~~ [2024-11-24]
 
 ## Notes
 
@@ -943,3 +947,73 @@ const { message = 'Welcome, world!' } = Astro.props;
 - Fun fact:
   > Did you know?
   > This is actually what Astro does behind the scenes when you pass props to a component written using a UI framework like React! For components with a client:\* directive, Astro creates an `<astro-island>` custom element with a props attribute that stores your server-side props in the HTML output.
+
+### Maintain Your Project
+
+#### Upgrade Astro
+
+```sh
+# Update Astro and all integrations
+pnpm dlx @astrojs/upgrade
+```
+
+#### Testing
+
+- Vitest (Unit and Integration Tests)
+
+```ts
+// vitest.config.ts
+export default getViteConfig(
+  {
+    test: {
+      /* Vitest configuration options */
+    },
+  },
+  {
+    site: 'https://example.com/',
+    trailingSlash: 'always',
+  },
+)
+```
+
+- There is an experimental `Container API` to test Astro components in isolation. Learn it when implementation is declared stable.
+
+- Playwright (End-to-End Tests)
+
+```ts
+// playwright.config.ts
+import { defineConfig } from '@playwright/test'
+
+export default defineConfig({
+  webServer: {
+    command: 'pnpm run preview',
+    url: 'http://localhost:4322/',
+    timeout: 120 * 1000,
+    reuseExistingServer: !process.env.CI,
+  },
+  use: {
+    baseURL: 'http://localhost:4322/',
+  },
+})
+```
+
+- `npx playwright show-report`
+
+#### Troubleshooting
+
+- Use Astro's `<Debug/>` component to directly render a debug value to HTML
+
+```
+---
+import { Debug } from 'astro:components';
+const sum = (a, b) => a + b;
+const answer = sum(2, 4);
+---
+<!-- Example: All three examples are equivalent. -->
+<Debug answer={sum(2, 4)} />
+<Debug {{answer: sum(2, 4)}} />
+<Debug {answer} />
+```
+
+- CSP error -> `script-src: 'unsafe-inline'`
+- `Astro.glob()` does not support dynamic variables and string interpolation.
