@@ -6,7 +6,7 @@ export default {
   semi: false,
   singleQuote: true,
   printWidth: 100,
-  plugins: ['prettier-plugin-astro'],
+  plugins: ['prettier-plugin-astro', 'prettier-plugin-tailwindcss'],
   overrides: [
     {
       files: '*.astro',
