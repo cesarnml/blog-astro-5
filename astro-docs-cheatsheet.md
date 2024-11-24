@@ -28,6 +28,9 @@
       - [Middleware](#middleware)
       - [Internationalization](#internationalization)
       - [View Transitions](#view-transitions)
+    - [Client-Side Interactivity](#client-side-interactivity)
+      - [UI Frameworks](#ui-frameworks)
+      - [Scripts \& Event Handling](#scripts--event-handling)
 
 ## Sections
 
@@ -53,7 +56,7 @@
   - [x] ~~_Endpoints_~~ [2024-11-22]
   - [x] ~~_Actions_~~ [2024-11-22]
   - [x] ~~_Prefetch_~~ [2024-11-22]
-  - [ ] Middleware
+  - [x] ~~_Middleware_~~ [2024-11-24]
   - [ ] Internationalization
   - [ ] View Transitions
 - [ ] Assets
@@ -69,9 +72,9 @@
   - [ ] E-commerce
   - [ ] Authentication
   - [ ] Environment Variables
-- [ ] Client-Side Interactivity
-  - [ ] UI Frameworks
-  - [ ] Scripts & Event Handling
+- [x] ~~_Client-Side Interactivity_~~ [2024-11-24]
+  - [x] ~~_UI Frameworks_~~ [2024-11-24]
+  - [x] ~~_Scripts & Event Handling_~~ [2024-11-24]
 - [ ] Maintain Your Project
   - [ ] Upgrade Astro
   - [ ] Testing
@@ -621,7 +624,7 @@ export const ALL: APIRoute = ({ request }) => {
   - JSON parsing
   - input validation
 - Actions are defined in a server object exported from `src/actions/index.ts`
-- Actions can be called from UI-framework components, <form/> POST request, or <script/> tags
+- Actions can be called from UI-framework components, <form /> POST request, or `script` tags
 
 ```ts
 // src/actions/index.ts
@@ -759,8 +762,184 @@ import { prefetch } from 'astro:prefetch'
 
 #### Middleware
 
-- Middleware allows for request and responses to be intercepted on page/endpoint request.
+- Middleware allows for request and responses to be intercepted on before a page/endpoint is rendered.
+- Enables cross-component/endpoint sharing of context via `Astro.local`
+- Enables access to `cookies` and `headers` in a SSR mode
+
+```ts
+export function onRequest(context, next) {
+  // intercept data from a request
+  // optionally, modify the properties in `locals`
+  context.locals.title = 'New title'
+
+  // return a Response or the result of calling `next()`
+  return next()
+}
+```
+
+- `locals` does not persist across multiple pages/endpoints
+- Wrap `onRequest` named export in `defineMiddleware` to gain type-safety on `context` object and `next` method
+  - Requires declaring a global namespace `env.d.ts`
+
+```ts
+// src/env.d.ts
+/// <reference path="../.astro/types.d.ts" />
+
+declare namespace App {
+  interface Locals {
+    user: {
+      name: string
+    }
+    welcomeTitle: () => string
+    orders: Map<string, object>
+  }
+}
+```
+
+- Chain middleware with `sequence`
+
+```ts
+import { sequence } from 'astro:middleware'
+
+async function validation(_, next) {
+  console.log('validation request')
+  const response = await next()
+  console.log('validation response')
+  return response
+}
+
+async function auth(_, next) {
+  console.log('auth request')
+  const response = await next()
+  console.log('auth response')
+  return response
+}
+
+async function greeting(_, next) {
+  console.log('greeting request')
+  const response = await next()
+  console.log('greeting response')
+  return response
+}
+
+export const onRequest = sequence(validation, auth, greeting)
+```
+
+- Example of redirecting(via rewrite) from middleware
+
+```ts
+import { isLoggedIn } from '~/auth.js'
+export function onRequest(context, next) {
+  if (!isLoggedIn(context)) {
+    // If the user is not logged in, update the Request to render the `/login` route and
+    // add header to indicate where the user should be sent after a successful login.
+    // Re-execute middleware.
+    return context.rewrite(
+      new Request('/login', {
+        headers: {
+          'x-redirect-to': context.url.pathname,
+        },
+      }),
+    )
+  }
+
+  return next()
+}
+```
+
+- There are some issues with redirecting in middleware when using HTML forms.
+  - Read [here](https://docs.astro.build/en/guides/middleware/#rewriting) if this happens to you
 
 #### Internationalization
 
 #### View Transitions
+
+### Client-Side Interactivity
+
+#### UI Frameworks
+
+- By default, UI components are rendered to static HTML
+- Hydrate interactive components using client-side directives:
+  - 1. `client:load` // JS sent on load
+  - 2. `client:visible` // JS sent when visible
+  - 3. `client:only="[FRAMEWORK]"` // renders only on the client (must explicitly indicate UI component framework)
+  - 4. `client:idle` // JS loads when network idle
+- There might be accessibility issues with the above directives (i.e. default to `client:only` when A11y issue is encountered)
+- Passing functions as props to UI components doesn't work (because functions can't be _serialized_ across server/client boundary)
+- Goofy bits one my want to read if nesting UI/Astro components
+
+#### Scripts & Event Handling
+
+- `scripts` are injected into the <head/> element once
+- Use `is:inline` directive to override Astro processing of the script
+- Use `src` attribute to import script from a file that lives in `src/`
+
+```html
+<!-- relative path to script at `src/scripts/local.js` -->
+<script src="../scripts/local.js"></script>
+
+<!-- also works for local TypeScript files -->
+<script src="./script-with-types.ts"></script>
+```
+
+- Cool Web Component example
+
+```html
+<!-- Wrap the component elements in our custom element “astro-heart”. -->
+<astro-heart> <button aria-label="Heart">💜</button> × <span>0</span> </astro-heart>
+
+<script>
+  // Define the behaviour for our new type of HTML element.
+  class AstroHeart extends HTMLElement {
+    connectedCallback() {
+      let count = 0
+
+      const heartButton = this.querySelector('button')
+      const countSpan = this.querySelector('span')
+
+      // Each time the button is clicked, update the count.
+      heartButton.addEventListener('click', () => {
+        count++
+        countSpan.textContent = count.toString()
+      })
+    }
+  }
+
+  // Tell the browser to use our AstroHeart class for <astro-heart> elements.
+  customElements.define('astro-heart', AstroHeart)
+</script>
+```
+
+- Use `data-*` attribute to pass frontmatter variables to the client
+
+```jsx
+---
+const { message = 'Welcome, world!' } = Astro.props;
+---
+
+<!-- Store the message prop as a data attribute. -->
+<astro-greet data-message={message}>
+  <button>Say hi!</button>
+</astro-greet>
+
+<script>
+  class AstroGreet extends HTMLElement {
+    connectedCallback() {
+      // Read the message from the data attribute.
+      const message = this.dataset.message;
+      const button = this.querySelector('button');
+      button.addEventListener('click', () => {
+        alert(message);
+      });
+    }
+  }
+
+  customElements.define('astro-greet', AstroGreet);
+</script>
+```
+
+- Framework UI components are not guaranteed to be rendered before a script runs
+
+- Fun fact:
+  > Did you know?
+  > This is actually what Astro does behind the scenes when you pass props to a component written using a UI framework like React! For components with a client:\* directive, Astro creates an `<astro-island>` custom element with a props attribute that stores your server-side props in the HTML output.
