@@ -68,13 +68,13 @@
   - [x] ~~_Prefetch_~~ [2024-11-22]
   - [x] ~~_Middleware_~~ [2024-11-24]
   - [x] ~~_Internationalization_~~ [2024-11-24]
-  - [ ] View Transitions
+  - [x] ~~_View Transitions_~~ [2024-11-25]
 - [x] ~~_Assets_~~ [2024-11-24]
   - [x] ~~_CSS & Styling_~~ [2024-11-24]
-  - [ ] Images
-  - [ ] Fonts
+  - [x] ~~_Images_~~ [2024-11-25]
+  - [x] ~~_Fonts_~~ [2024-11-25]
   - [ ] Syntax Highlighting
-  - [ ] Connect Hosted Media or DAM
+  - [x] ~~_Connect Hosted Media or DAM_~~ [2024-11-25]
 - [ ] Connect Your Data
   - [ ] Data Fetching
   - [ ] Astro DB
@@ -89,6 +89,11 @@
   - [x] ~~_Upgrade Astro_~~ [2024-11-24]
   - [x] ~~_Testing_~~ [2024-11-24]
   - [x] ~~_Troubleshooting_~~ [2024-11-24]
+- [ ] Astro-v5 Beta Docs
+  - [ ] Content collections
+  - [ ] Server islands
+  - [ ] Environmental variables
+  - [ ] On-demand rendering
 
 ## Notes
 
@@ -924,8 +929,152 @@ import { ViewTransitions } from 'astro:transitions';
 <meta name="title" content={title} />
 <meta name="description" content={description} />
 
-<ViewTransitions />
+<ViewTransitions /> // Deprecated in v5; use <ClientRouter>
 ```
+
+- Transition directives:
+  - `transition:name` - identify a common element present in each page involved in a transition to customize transition
+  - `transition:animate` - override the default animation or create a custom animation
+  - `transition:persist` - opt out of transition for an element (like a common header) - also persist state; it's like the component/element doesn't unmount on page navigation
+- `transition:persist="media-player"` shorthand that combines `*:persists` and `*:name` directives
+- `transition:persist-props` - to not load new props on transition
+- Built-in Animation Directives:
+  - 1.  fade (default)
+  - 2. initial
+  - 3. slide
+  - 4. none
+- Set transition default of page's `html` element an override on individual elements
+
+```jsx
+---
+import CommonHead from '../components/CommonHead.astro';
+---
+
+<html transition:name="root" transition:animate="none">
+  <head>
+    <CommonHead />
+  </head>
+  <body>
+    <header>
+      ...
+    </header>
+    <!-- Override your page default on a single element -->
+    <main transition:animate="slide">
+      ...
+    </main>
+  </body>
+</html>
+```
+
+- [Customize](https://docs.astro.build/en/guides/view-transitions/#customizing-animations) built-in transition animations or craft your own
+
+```jsx
+---
+import { fade } from 'astro:transitions';
+---
+
+<header transition:animate={fade({ duration: '0.4s' })}>
+```
+
+- Opt-out of client-side navigation on a `link` or `form` element via the `data-astro-reload` attribute
+- Programmatically trigger page transitions
+
+```jsx
+<script>
+  import { navigate } from 'astro:transitions/client';
+
+  // Navigate to the selected option automatically.
+  document.querySelector('select').onchange = (event) => {
+    let href = event.target.value;
+    navigate(href);
+  };
+</script>
+<select>
+  <option value="/play">Play</option>
+  <option value="/blog">Blog</option>
+  <option value="/about">About</option>
+  <option value="/contact">Contact</option>
+</select>
+```
+
+- Fine grained control of browser history stack:
+  - `data-astro-history: 'push' | 'replace' | 'auto'`
+- Page navigation [life-cycle](https://docs.astro.build/en/guides/view-transitions/#client-side-navigation-process)
+- `data-astro-rerun` add attribute to inline-scripts that should be rerun on transition navigation
+- The ViewTransition Life-cycle event `astro:before-preparation` is useful if one desires to show a page navigation spinner
+
+```jsx
+<script is:inline>
+  document.addEventListener('astro:before-preparation', event => {
+    const originalLoader = event.loader;
+    event.loader = async function() {
+      const { startSpinner } = await import('./spinner.js');
+      const stop = startSpinner();
+      await originalLoader();
+      stop();
+    };
+  });
+</script>
+```
+
+```jsx
+<script is:inline>
+  document.addEventListener('astro:before-preparation', () => {
+    document.querySelector('#loading').classList.add('show');
+  });
+  document.addEventListener('astro:after-preparation', () => {
+    document.querySelector('#loading').classList.remove('show');
+  });
+</script>
+```
+
+- Preserve dark mode across page transitions
+
+```jsx
+<script is:inline>
+  function setDarkMode(document) {
+    let theme = localStorage.darkMode ? 'dark' : 'light';
+    document.documentElement.dataset.theme = theme;
+  }
+
+  setDarkMode(document);
+
+  document.addEventListener('astro:before-swap', event => {
+    // Pass the incoming document to set the theme on it
+    setDarkMode(event.newDocument);
+  });
+</script>
+```
+
+- Below is Astro's default swap implementation. Tweak as needed.
+
+```html
+<script>
+import { swapFunctions } from 'astro:transitions/client';
+
+// substitutes window.document with doc
+function mySwap(doc: Document) {
+  swapFunctions.deselectScripts(doc);
+  swapFunctions.swapRootAttributes(doc);
+  swapFunctions.swapHeadElements(doc);
+  const restoreFocusFunction = swapFunctions.saveFocus();
+  swapFunctions.swapBodyElement(doc.body, document.body);
+  restoreFocusFunction();
+};
+
+  event.swap = () => mySwap(event.newDocument);
+<script>
+```
+
+- Reset scroll position
+
+```jsx
+document.addEventListener('astro:after-swap', () =>
+  window.scrollTo({ left: 0, top: 0, behavior: 'instant' }),
+)
+```
+
+-
 
 ### Assets
 
@@ -952,9 +1101,38 @@ const { class: className, ...rest } = Astro.props;
 
 #### Fonts
 
+```css
+/* styles/global.css */
+/* Register your custom font family and tell the browser where to find it. */
+@font-face {
+  font-family: 'DistantGalaxy';
+  src: url('/fonts/DistantGalaxy.woff') format('woff');
+  font-weight: normal;
+  font-style: normal;
+  font-display: swap;
+}
+```
+
+- `[Fontsource](https://fontsource.org/) simplifies the process of loading custom fonts
+- Increase performance by [preloading](https://fontsource.org/docs/getting-started/preload) Fontsource fonts
+- There is a question as to how to add register a custom font under Tailwind v4
+
+```jsx
+// src/layouts/BaseLayout.astro
+---
+import '@fontsource/twinkle-star';
+---
+```
+
 #### Syntax Highlighting
 
+- Built-in support for Shiki and Prism. Shiki is better so ignore Prism
+-
+
 #### Connect Hosted Media or DAM
+
+- DAM = headless Digital Asset Manager (think Cloudinary)
+-
 
 ### Client-Side Interactivity
 
@@ -1115,3 +1293,7 @@ const answer = sum(2, 4);
 
 - CSP error -> `script-src: 'unsafe-inline'`
 - `Astro.glob()` does not support dynamic variables and string interpolation.
+
+```
+
+```
